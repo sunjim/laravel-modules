@@ -65,11 +65,14 @@ trait PermissionService
         $modules     = Module::getOrdered();
         $permissions = [];
         foreach ($modules as $module) {
-            $permissions[] = [
-                'module' => $module,
-                'config' => $this->config($module->getName().'.config'),
-                'rules'  => $this->filterByGuard($module, $guard),
-            ];
+            $ishave = $this->filterByGuard($module, $guard);
+            if($ishave){
+                $permissions[] = [
+                    'module' => $module,
+                    'config' => $this->config($module->getName().'.config'),
+                    'rules'  => $ishave,
+                ];
+            }
         }
 
         return $permissions;
@@ -88,6 +91,7 @@ trait PermissionService
             foreach ($group['permissions'] as $n => $permission) {
                 if ($permission['guard'] != $guard) {
                     unset($data[$k]['permissions'][$n]);
+                    return false;
                 }
             }
         }
