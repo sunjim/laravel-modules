@@ -27,6 +27,7 @@ trait PermissionService
      */
     public function hadPermission($permissions, string $guard): bool
     {
+
         if (auth($guard)->user()->name=='admin') {
             return true;
         }
