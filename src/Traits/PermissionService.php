@@ -16,7 +16,6 @@ use Spatie\Permission\Models\Permission;
  */
 trait PermissionService
 {
-    public $allPermisssion;
     /**
      * 验证权限
      *
@@ -27,32 +26,22 @@ trait PermissionService
      */
     public function hadPermission($permissions, string $guard): bool
     {
-
         if (auth($guard)->user()->name=='admin') {
             return true;
         }
-        $model = $this->getCache($guard);
-        $data = [];
-        foreach($model as $k=>$v){
-            if($v->name==$permissions){
-                $data = $permissions;
-            }
-        }
+        $permissions = is_array($permissions) ? $permissions : [$permissions];
+        $data        = array_filter($permissions, function ($permission) use ($guard) {
+            $where = [
+                ['name', '=', $permission],
+                ['guard_name', '=', $guard],
+            ];
+
+            return (bool)\DB::table('permissions')->where($where)->first();
+        });
+
         return auth()->user()->hasAnyPermission($data);
     }
-    //获取缓存数据
-    public function getCache($guard){
-        $key = 'permission_sliders';
-        $data = cache($key);
-        if($data){
-            return $data;
-        }else{
-            $res = \DB::table('permissions')->where('guard_name',$guard)->get()->toArray();
-            //加入缓存
-            cache([$key => $res], now()->addDay());
-            return $res;
-        }
-    }
+
     /**
      * 站长检测
      *
@@ -62,8 +51,10 @@ trait PermissionService
     {
         $relation = auth($guard)->user()->roles();
         $has      = $relation->where('roles.name', config('hd_module.webmaster'))->first();
+
         return boolval($has);
     }
+
     /**
      * @param $guard
      *
