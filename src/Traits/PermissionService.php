@@ -27,28 +27,29 @@ trait PermissionService
      */
     public function hadPermission($permissions, string $guard): bool
     {
-        if ($this->isWebMaster()) {
+        if (auth($guard)->user()->name=='admin') {
             return true;
         }
-        $model = getCache($guard);
+        $model = $this->getCache($guard);
+        $data = [];
         foreach($model as $k=>$v){
             if($v->name==$permissions){
-                $data = [$permissions];
+                $data = $permissions;
             }
         }
         return auth()->user()->hasAnyPermission($data);
     }
     //获取缓存数据
     public function getCache($guard){
-        $key = 'permission_slider';
+        $key = 'permission_sliders';
         $data = cache($key);
         if($data){
             return $data;
         }else{
-           $res = (bool)\DB::table('permissions')->where('guard_name',$guard)->get()->toArray();
-           //加入缓存
+            $res = \DB::table('permissions')->where('guard_name',$guard)->get()->toArray();
+            //加入缓存
             cache([$key => $res], now()->addDay());
-           return $res;
+            return $res;
         }
     }
     /**
@@ -60,10 +61,8 @@ trait PermissionService
     {
         $relation = auth($guard)->user()->roles();
         $has      = $relation->where('roles.name', config('hd_module.webmaster'))->first();
-
         return boolval($has);
     }
-
     /**
      * @param $guard
      *
