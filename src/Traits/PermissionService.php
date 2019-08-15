@@ -16,6 +16,7 @@ use Spatie\Permission\Models\Permission;
  */
 trait PermissionService
 {
+    public $allPermisssion;
     /**
      * 验证权限
      *
@@ -29,19 +30,27 @@ trait PermissionService
         if ($this->isWebMaster()) {
             return true;
         }
-        $permissions = is_array($permissions) ? $permissions : [$permissions];
-        $data        = array_filter($permissions, function ($permission) use ($guard) {
-            $where = [
-                ['name', '=', $permission],
-                ['guard_name', '=', $guard],
-            ];
-
-            return (bool)\DB::table('permissions')->where($where)->first();
-        });
-
+        $model = getCache($guard);
+        foreach($model as $k=>$v){
+            if($v->name==$permissions){
+                $data = [$permissions];
+            }
+        }
         return auth()->user()->hasAnyPermission($data);
     }
-
+    //获取缓存数据
+    public function getCache($guard){
+        $key = 'permission_slider';
+        $data = cache($key);
+        if($data){
+            return $data;
+        }else{
+           $res = (bool)\DB::table('permissions')->where('guard_name',$guard)->get()->toArray();
+           //加入缓存
+            cache([$key => $res], now()->addDay());
+           return $res;
+        }
+    }
     /**
      * 站长检测
      *
