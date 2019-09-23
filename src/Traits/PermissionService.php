@@ -26,7 +26,7 @@ trait PermissionService
      */
     public function hadPermission($permissions, string $guard): bool
     {
-        if (auth($guard)->user()->name=='admin') {
+        if ($this->isWebMaster()) {
             return true;
         }
         $permissions = is_array($permissions) ? $permissions : [$permissions];
@@ -40,9 +40,14 @@ trait PermissionService
      */
     public function isWebMaster($guard = 'admin'): bool
     {
-        $relation = auth($guard)->user()->roles();
-        $has      = $relation->where('roles.name', config('hd_module.webmaster'))->first();
-
+        $has = cache()->remember(
+            'isWebMaster'.auth($guard)->user()->id,
+            7200,
+            function()use($guard){
+                $relation = auth($guard)->user()->roles();
+                return $relation->where('roles.name', config('hd_module.webmaster'))->first();
+            }
+        );
         return boolval($has);
     }
 
