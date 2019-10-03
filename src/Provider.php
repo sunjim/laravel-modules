@@ -20,23 +20,30 @@ class Provider
             foreach($permissions as $permission){
                 $arr[] = lcfirst(explode('\\',$permission->name)[1]);
             }
-           return array_intersect(array_unique($arr),config('zx_module.allow_navigate'));
+           return array_intersect(config('zx_module.allow_navigate'),array_unique($arr));
         }
     }
     //定义左侧导航
     public function leftNav(){
-
         $groups = $this->getMenuByModule();
         if($this->isWebMaster()){
             return $groups;
         }else{
             $permissions = auth('admin')->user()->getAllPermissions()->toArray();
             $arr = array_column($permissions,'name');
-            return array_filter($groups,function($item)use($arr){
+            $result =  array_filter($groups,function($item)use($arr){
                 foreach($item['permission'] as $v){
                     return in_array($v,$arr);
                 }
             });
+            foreach($result as $it=>$item){
+                foreach($item['menus'] as $k=>$v){
+                    if(!in_array($v['permission'],$arr)){
+                        unset($result[$it]['menus'][$k]);
+                    }
+                }
+            }
+            return $result;
         }
     }
 }
