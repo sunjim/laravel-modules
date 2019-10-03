@@ -26,16 +26,15 @@ trait ModuleService
     public function getModulesLists($filter = [])
     {
         $modules = [];
-        foreach (\Module::getOrdered() as $module) {
-            if ( ! in_array($module->name, $filter)) {
+        foreach (\Module::toCollection()->toArray() as $module) {
+            if ( ! in_array($module['name'], $filter)) {
                 $modules[] = [
-                    'name'   => $module->name,
-                    'title'  => \HDModule::config($module->name.'.config.name'),
+                    'name'   => $module['name'],
+                    'title'  => \HDModule::config($module['name'].'.config.name'),
                     'module' => $module,
                 ];
             }
         }
-
         return $modules;
     }
 
@@ -49,7 +48,7 @@ trait ModuleService
     public function module($module = null)
     {
         $module = $module ?? $this->currentModule();
-
+        
         return Module::find($module);
     }
 

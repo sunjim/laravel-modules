@@ -15,7 +15,7 @@ trait MenusService
      */
     public function getMenus()
     {
-        foreach (\Module::getOrdered() as $module) {
+        foreach (\Module::toCollection()->toArray() as $module) {
             $path          = config('modules.paths.modules')."/{$module->name}/Config";
             $menusConfig   = include "{$path}/menus.php";
             $title         = \HDModule::config($module->name.'.config.name');

@@ -45,7 +45,7 @@ trait PermissionService
             7200,
             function()use($guard){
                 $relation = auth($guard)->user()->roles();
-                return $relation->where('roles.name', config('hd_module.webmaster'))->first();
+                return $relation->where('roles.name', config('zx_module.webmaster'))->first();
             }
         );
         return boolval($has);
@@ -58,14 +58,14 @@ trait PermissionService
      */
     public function getPermissionByGuard($guard)
     {
-        $modules     = Module::getOrdered();
+        $modules     = Module::toCollection()->toArray();
         $permissions = [];
         foreach ($modules as $module) {
             $ishave = $this->filterByGuard($module, $guard);
             if($ishave){
                 $permissions[] = [
                     'module' => $module,
-                    'config' => $this->config($module->getName().'.config'),
+                    'config' => $this->config($module['alias'].'.config'),
                     'rules'  => $ishave,
                 ];
             }
@@ -82,7 +82,8 @@ trait PermissionService
      */
     protected function filterByGuard($module, $guard)
     {
-        $data = $config = \HDModule::config($module.'.permission');
+
+        $data = $config = \HDModule::config($module['alias'].'.permission');
         foreach ($config as $k => $group) {
             foreach ($group['permissions'] as $n => $permission) {
                 if ($permission['guard'] != $guard) {

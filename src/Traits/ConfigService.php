@@ -6,6 +6,7 @@
  * '-------------------------------------------------------------------*/
 namespace Houdunwang\Module\Traits;
 
+use Illuminate\Support\Arr;
 use Module;
 use HDModule;
 /**
@@ -28,8 +29,7 @@ trait ConfigService
         $file = config('modules.paths.modules').'/'.ucfirst(array_shift($exts)).'/Config/'.array_shift($exts).'.php';
         if (is_file($file)) {
             $config = include $file;
-
-            return $exts ? array_get($config, implode('.', $exts)) : $config;
+            return $exts ? Arr::get($config, implode('.', $exts)) : $config;
         }
     }
 
