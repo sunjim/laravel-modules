@@ -21,7 +21,7 @@ class Provider
                 if(isset(explode('\\',$permission->name)[1])){
                     $arr[] = lcfirst(explode('\\',$permission->name)[1]);
                 }else{
-                    return false;
+                    return [];
                 }
             }
            return array_intersect(config('zx_module.allow_navigate'),array_unique($arr));
