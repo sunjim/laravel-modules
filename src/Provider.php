@@ -18,7 +18,11 @@ class Provider
         }else{
             $permissions = auth('admin')->user()->getAllPermissions();
             foreach($permissions as $permission){
-                $arr[] = lcfirst(explode('\\',$permission->name)[1]);
+                if(isset(explode('\\',$permission->name)[1])){
+                    $arr[] = lcfirst(explode('\\',$permission->name)[1]);
+                }else{
+                    return false;
+                }
             }
            return array_intersect(config('zx_module.allow_navigate'),array_unique($arr));
         }
