@@ -82,17 +82,20 @@ trait PermissionService
      */
     protected function filterByGuard($module, $guard)
     {
-
         $data = $config = \HDModule::config($module['alias'].'.permission');
-        foreach ($config as $k => $group) {
-            foreach ($group['permissions'] as $n => $permission) {
-                if ($permission['guard'] != $guard) {
-                    unset($data[$k]['permissions'][$n]);
-                    return false;
+        if(is_array($config)){
+            foreach ($config as $k => $group) {
+                foreach ($group['permissions'] as $n => $permission) {
+                    if ($permission['guard'] != $guard) {
+                        unset($data[$k]['permissions'][$n]);
+                        return false;
+                    }
                 }
             }
+            return $data;
+        }else{
+            return [];
         }
 
-        return $data;
     }
 }
