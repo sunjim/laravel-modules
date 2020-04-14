@@ -94,7 +94,7 @@ trait PermissionService
             }
             return $data;
         }else{
-            return [];
+            return false;
         }
 
     }
