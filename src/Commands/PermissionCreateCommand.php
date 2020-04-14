@@ -40,9 +40,9 @@ class PermissionCreateCommand extends Command
                 foreach ((array)$group['permissions'] as $permission) {
                     if ( ! $this->permissionIsExists($permission)) {
                         if(isset($permission['module'])){
-                            Permission::create(['name' => $permission['name'], 'guard_name' => $permission['guard'],'module'=>$permission['module']]); 
+                            Permission::create(['title' => $permission['title'],'name' => $permission['name'], 'guard_name' => $permission['guard'],'module'=>$permission['module']]); 
                         }else{
-                             Permission::create(['name' => $permission['name'], 'guard_name' => $permission['guard']]);
+                             Permission::create(['title' => $permission['title'],'name' => $permission['name'], 'guard_name' => $permission['guard']]);
                         }
                        
                     }
