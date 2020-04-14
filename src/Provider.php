@@ -50,4 +50,23 @@ class Provider
             return $result;
         }
     }
+    //获取模块权限
+    public function getModulePermission($model){
+        $groups = $this->getMenuByModule();
+        $permissions = $model->getAllPermissions()->toArray();
+        $arr = array_column($permissions,'name');
+        $result =  array_filter($groups,function($item)use($arr){
+            foreach($item['permission'] as $v){
+                return in_array($v,$arr);
+            }
+        });
+        foreach($result as $it=>$item){
+            foreach($item['menus'] as $k=>$v){
+                if(!in_array($v['permission'],$arr)){
+                    unset($result[$it]['menus'][$k]);
+                }
+            }
+        }
+        return $result;
+    }
 }
